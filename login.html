@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RemindMe - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #F59E0B;
+            --primary-dark: #D97706;
+            --dark: #1F2937;
+            --darker: #111827;
+            --light: #E5E7EB;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            color: var(--light);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .auth-container {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.95));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            transition: all 0.3s ease;
+            color: #000;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+        }
+        
+        .input-field {
+            background-color: rgba(31, 41, 55, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            color: var(--light);
+        }
+        
+        .input-field::placeholder {
+            color: rgba(229, 231, 235, 0.6);
+        }
+        
+        .input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+            outline: none;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: var(--light);
+            opacity: 0.5;
+        }
+        
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .divider::before {
+            margin-right: 1rem;
+        }
+        
+        .divider::after {
+            margin-left: 1rem;
+        }
+        
+        .social-btn {
+            background-color: rgba(31, 41, 55, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .social-btn:hover {
+            background-color: rgba(31, 41, 55, 0.9);
+            transform: translateY(-2px);
+        }
+
+        /* Toast styles */
+        .toastify {
+            font-family: 'Poppins', sans-serif;
+            border-radius: 8px;
+            padding: 12px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .toastify-success {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+        
+        .toastify-error {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <div class="auth-container rounded-xl shadow-2xl overflow-hidden w-full max-w-md">
+        <div class="p-8">
+            <div class="text-center mb-8">
+                <img src="https://i.imghippo.com/files/rAm4628aH.png" alt="RemindMe Logo" class="h-16 mx-auto mb-4">
+                <h1 class="text-3xl font-bold text-yellow-500 mb-2">Welcome Back</h1>
+                <p class="text-gray-400">Sign in to manage your tasks and schedule</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label for="email" class="block text-sm font-medium mb-2">Email Address</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="email" id="email" name="email" class="input-field w-full pl-10 pr-4 py-3 rounded-lg" placeholder="your@email.com" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium mb-2">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" id="password" name="password" class="input-field w-full pl-10 pr-4 py-3 rounded-lg" placeholder="••••••••" required>
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-yellow-500 focus:outline-none" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="flex justify-end mt-2">
+                        <a href="forgotpassword.html" class="text-sm text-yellow-500 hover:underline">Forgot password?</a>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg font-semibold flex items-center justify-center">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                </button>
+                
+                <div class="divider">or continue with</div>
+                
+                <div class="grid grid-cols-3 gap-4">
+                    <button type="button" class="social-btn py-2 px-4 rounded-lg flex items-center justify-center" aria-label="Sign in with Google">
+                        <i class="fab fa-google text-red-500"></i>
+                    </button>
+                    <button type="button" class="social-btn py-2 px-4 rounded-lg flex items-center justify-center" aria-label="Sign in with Apple">
+                        <i class="fab fa-apple"></i>
+                    </button>
+                    <button type="button" class="social-btn py-2 px-4 rounded-lg flex items-center justify-center" aria-label="Sign in with Facebook">
+                        <i class="fab fa-facebook-f text-blue-500"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <div class="text-center mt-8 text-gray-400">
+                Don't have an account? <a href="signup.html" class="text-yellow-500 hover:underline font-medium">Sign up</a>
+            </div>
+        </div>
+        
+        <div class="bg-gray-800 px-8 py-4 text-center text-sm text-gray-500">
+            © 2025 RemindMe. All rights reserved.
+        </div>
+    </div>
+
+    <!-- Toastify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        // Toggle password visibility
+        document.querySelectorAll('.fa-eye').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const passwordInput = this.closest('.relative').querySelector('input');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    this.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    this.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+                passwordInput.focus();
+            });
+        });
+
+        // Form submission with validation
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                // Simple validation
+                if (!email || !password) {
+                    showToast('Please fill in all fields', 'error');
+                    return;
+                }
+                
+                // Email validation regex
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showToast('Please enter a valid email address', 'error');
+                    return;
+                }
+                
+                // Show loading state
+                const submitBtn = loginForm.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Signing in...';
+                submitBtn.disabled = true;
+                
+                // Mock login - redirect after 1.5 seconds
+                showToast('Login successful! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            });
+        }
+
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: 'top',
+                position: 'center',
+                className: `toastify-${type}`,
+                stopOnFocus: true
+            }).showToast();
+        }
+    });
+    </script>
+</body>
+</html>

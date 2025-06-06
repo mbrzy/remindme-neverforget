@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - RemindMe</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #F59E0B;
+            --primary-dark: #D97706;
+            --dark: #1F2937;
+            --darker: #111827;
+            --light: #E5E7EB;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            color: var(--light);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.95));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            transition: all 0.3s ease;
+            border: none;
+            color: #000;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(31, 41, 55, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--light);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+        
+        .navbar {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .payment-form {
+            display: none;
+        }
+        
+        .payment-form.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .payment-tab {
+            transition: all 0.3s ease;
+        }
+
+        .payment-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .payment-method {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .payment-method.active {
+            display: block;
+        }          
+
+        .e-wallet-btn {
+            transition: all 0.3s ease;
+        }
+
+        .e-wallet-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Toast Notification Styles */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(150%);
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            max-width: 350px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background-color: #10B981;
+        }
+
+        .toast.error {
+            background-color: #EF4444;
+        }
+
+        .toast.warning {
+            background-color: #F59E0B;
+        }
+
+        .toast i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* File upload preview */
+        .file-preview {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .file-preview.show {
+            display: flex;
+            align-items: center;
+        }
+
+        .file-preview img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .file-preview-info {
+            flex: 1;
+        }
+
+        .file-preview-name {
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .file-preview-size {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .remove-file {
+            color: #EF4444;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar fixed w-full top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="https://i.imghippo.com/files/rAm4628aH.png" alt="RemindMe Logo" class="h-8">
+                <span class="text-xl font-bold text-yellow-500">RemindMe</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="index.html" class="nav-link text-gray-300 hover:text-yellow-500 transition-colors">Home</a>
+                <a href="index.html#features" class="nav-link text-gray-300 hover:text-yellow-500 transition-colors">Features</a>
+                <a href="dashboard.html" class="nav-link text-gray-300 hover:text-yellow-500 transition-colors">Dashboard</a>
+                <a href="pricing.html" class="nav-link text-yellow-500">Pricing</a>
+                <a href="dashboard.html" class="btn-secondary px-4 py-2 rounded-lg">Login</a>
+                <a href="dashboard.html" class="btn-primary px-4 py-2 rounded-lg">Sign Up</a>
+            </div>
+            <button class="md:hidden text-yellow-500">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Pricing Section -->
+    <section class="pt-32 pb-16 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center justify-center bg-yellow-500 bg-opacity-10 text-yellow-500 px-4 py-2 rounded-full mb-4">
+                    <i class="fas fa-crown mr-2"></i>
+                    <span>Pricing Plans</span>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">Choose Your Plan</h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    Start free, upgrade when you need more power. No hidden fees, cancel anytime.
+                </p>
+            </div>
+            
+            <!-- Plan Selection -->
+            <div id="plan-selection" class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <div class="glass-card p-8 rounded-2xl">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-semibold mb-2">Basic</h3>
+                        <p class="text-gray-400 mb-4">For students who need basic organization</p>
+                        <div class="flex justify-center items-baseline">
+                            <span class="text-4xl font-bold">Free</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Up to 10 tasks</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Basic reminders</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Mobile app</li>
+                        <li class="flex items-center gap-3 text-gray-500"><i class="fas fa-times text-red-500"></i>Advanced analytics</li>
+                    </ul>
+                    <button onclick="selectPlan('basic')" class="btn-secondary w-full py-3 rounded-lg">Get Started</button>
+                </div>
+                <div class="glass-card p-8 rounded-2xl border-yellow-500 border-2 relative">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black px-4 py-1 rounded-full text-sm font-semibold">
+                        Most Popular
+                    </div>
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-semibold mb-2">Pro</h3>
+                        <p class="text-gray-400 mb-4">For serious students who need more</p>
+                        <div class="flex justify-center items-baseline">
+                            <span class="text-4xl font-bold">Rp. 14.900</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Unlimited tasks</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Smart reminders</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Cross-platform sync</li>
+                        <li class="flex items-center gap-3 text-gray-500"><i class="fas fa-times text-red-500"></i>Team collaboration</li>
+                    </ul>
+                    <button onclick="selectPlan('pro')" class="btn-primary w-full py-3 rounded-lg">Choose Pro</button>
+                </div>
+                <div class="glass-card p-8 rounded-2xl">
+                     <div class="text-center mb-6">
+                        <h3 class="text-xl font-semibold mb-2">Premium</h3>
+                        <p class="text-gray-400 mb-4">For power users who want everything</p>
+                        <div class="flex justify-center items-baseline">
+                            <span class="text-4xl font-bold">Rp. 29.900</span>
+                        </div>
+                     </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Everything in Pro</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Team collaboration</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Advanced analytics</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Priority support</li>
+                    </ul>
+                    <button onclick="selectPlan('premium')" class="btn-primary w-full py-3 rounded-lg">Choose Premium</button>
+                </div>
+            </div>
+            
+            <!-- Payment Form (Hidden Initially) -->
+            <div id="payment-form" class="payment-form glass-card p-8 rounded-2xl max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6">Complete Your Purchase</h2>
+                
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-2">Selected Plan: <span id="selected-plan" class="text-yellow-500">Pro</span></h3>
+                    <p class="text-gray-400">You'll be charged <span id="plan-price" class="font-semibold">Rp14.900</span> per month</p>
+                </div>
+                
+                <!-- Payment Method Tabs -->
+                <div class="mb-6">
+                    <div class="flex border-b border-gray-700">
+                        <button onclick="showPaymentTab('credit-card')" class="payment-tab active px-4 py-2 font-medium text-yellow-500 border-b-2 border-yellow-500 focus:outline-none">
+                            <i class="far fa-credit-card mr-2"></i> Credit Card
+                        </button>
+                        <button onclick="showPaymentTab('bank-transfer')" class="payment-tab px-4 py-2 font-medium text-gray-400 hover:text-yellow-500 focus:outline-none">
+                            <i class="fas fa-university mr-2"></i> Bank Transfer
+                        </button>
+                        <button onclick="showPaymentTab('e-wallet')" class="payment-tab px-4 py-2 font-medium text-gray-400 hover:text-yellow-500 focus:outline-none">
+                            <i class="fas fa-wallet mr-2"></i> E-Wallet
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Credit Card Form -->
+                <form id="credit-card-form" class="payment-method active">
+                    <div class="mb-6">
+                        <label for="card-number" class="block text-gray-400 mb-2">Card Number</label>
+                        <div class="relative">
+                            <input type="text" id="card-number" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="1234 5678 9012 3456" required>
+                            <div class="absolute right-3 top-3 flex">
+                                <i class="fab fa-cc-visa text-gray-500 mr-2"></i>
+                                <i class="fab fa-cc-mastercard text-gray-500 mr-2"></i>
+                                <i class="fab fa-cc-amex text-gray-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label for="expiry-date" class="block text-gray-400 mb-2">Expiry Date</label>
+                            <input type="text" id="expiry-date" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="MM/YY" required>
+                        </div>
+                        <div>
+                            <label for="cvv" class="block text-gray-400 mb-2">CVV</label>
+                            <input type="text" id="cvv" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="123" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <label for="name" class="block text-gray-400 mb-2">Name on Card</label>
+                        <input type="text" id="name" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="John Doe" required>
+                    </div>
+                </form>
+                
+                <!-- Bank Transfer Form -->
+                <div id="bank-transfer-form" class="payment-method">
+                    <div class="mb-6">
+                        <p class="text-gray-400 mb-4">Complete payment via bank transfer to:</p>
+                        <div class="glass-card bg-gray-800 p-4 rounded-lg mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-400">Bank Name:</span>
+                                <span class="font-medium">Bank Central Asia (BCA)</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-400">Account Number:</span>
+                                <span class="font-medium">123 456 7890</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Account Name:</span>
+                                <span class="font-medium">RemindMe Inc.</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 text-sm">Please include your email address as payment reference. Your account will be activated within 1 business day after payment confirmation.</p>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <label class="block text-gray-400 mb-2">Upload Payment Proof</label>
+                        <div class="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-500 mb-2"></i>
+                            <p class="text-gray-400">Drag & drop your payment receipt here or click to browse</p>
+                            <input type="file" class="hidden" id="payment-proof" accept="image/*,.pdf">
+                            <button type="button" onclick="document.getElementById('payment-proof').click()" class="btn-secondary mt-3 px-4 py-2 rounded-lg">
+                                Select File
+                            </button>
+                        </div>
+                        <div id="file-preview" class="file-preview mt-3">
+                            <img id="file-preview-img" src="" alt="Preview">
+                            <div class="file-preview-info">
+                                <div id="file-preview-name" class="file-preview-name"></div>
+                                <div id="file-preview-size" class="file-preview-size"></div>
+                            </div>
+                            <i class="fas fa-times remove-file" onclick="removePaymentProof()"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- E-Wallet Form -->
+                <div id="e-wallet-form" class="payment-method">
+                    <div class="mb-6">
+                        <p class="text-gray-400 mb-4">Select your e-wallet provider:</p>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button type="button" onclick="selectEWallet('gopay')" class="e-wallet-btn py-3 rounded-lg border border-gray-700 hover:border-yellow-500 transition-colors">
+                                <img src="https://i.imghippo.com/files/gopay-logo.png" alt="GoPay" class="h-8 mx-auto">
+                            </button>
+                            <button type="button" onclick="selectEWallet('ovo')" class="e-wallet-btn py-3 rounded-lg border border-gray-700 hover:border-yellow-500 transition-colors">
+                                <img src="https://i.imghippo.com/files/ovo-logo.png" alt="OVO" class="h-8 mx-auto">
+                            </button>
+                            <button type="button" onclick="selectEWallet('dana')" class="e-wallet-btn py-3 rounded-lg border border-gray-700 hover:border-yellow-500 transition-colors">
+                                <img src="https://i.imghippo.com/files/dana-logo.png" alt="DANA" class="h-8 mx-auto">
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="ewallet-details" class="hidden mb-8">
+                        <div class="glass-card bg-gray-800 p-4 rounded-lg mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-400">Payment Amount:</span>
+                                <span class="font-medium" id="ewallet-amount">Rp14.900</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Payment Code:</span>
+                                <span class="font-medium">RMDM12345678</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 text-sm">Open your e-wallet app and pay using the code above. Payment will be verified automatically within minutes.</p>
+                    </div>
+                </div>
+                
+                <button type="button" onclick="processPayment()" id="payment-button" class="btn-primary w-full py-3 rounded-lg text-lg font-semibold mb-4">
+                    Complete Payment
+                </button>
+                
+                <div class="text-center">
+                    <button type="button" onclick="goBackToPlans()" class="text-yellow-500 hover:underline">
+                        ← Back to plans
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Payment Success (Hidden Initially) -->
+            <div id="payment-success" class="payment-form text-center glass-card p-8 rounded-2xl max-w-2xl mx-auto">
+                <div class="text-yellow-500 text-6xl mb-6">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2 class="text-3xl font-bold mb-4">Payment Successful!</h2>
+                <p class="text-xl text-gray-400 mb-8">Thank you for upgrading to <span id="success-plan" class="text-yellow-500">Pro</span> plan.</p>
+                <p class="text-gray-400 mb-8">You now have full access to all premium features. Start using them right away!</p>
+                <a href="dashboard.html" class="btn-primary px-8 py-3 rounded-lg text-lg font-semibold inline-block">
+                    Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-12 px-6 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <img src="https://i.imghippo.com/files/rAm4628aH.png" alt="RemindMe Logo" class="h-8">
+                        <span class="text-xl font-bold text-yellow-500">RemindMe</span>
+                    </div>
+                    <p class="text-gray-400">The smart task manager that helps you stay organized and productive.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Product</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html#features" class="text-gray-400 hover:text-yellow-500 transition-colors">Features</a></li>
+                        <li><a href="pricing.html" class="text-gray-400 hover:text-yellow-500 transition-colors">Pricing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">Download</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors"><i class="fab fa-twitter text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors"><i class="fab fa-facebook text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors"><i class="fab fa-instagram text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors"><i class="fab fa-linkedin text-xl"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0">© 2023 RemindMe. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toast notification system
+        function showToast(message, type = 'success', duration = 5000) {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle'}"></i>
+                ${message}
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Trigger reflow to enable animation
+            void toast.offsetWidth;
+            
+            toast.classList.add('show');
+            
+            // Auto-remove after duration
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, duration);
+        }
+
+        // Plan selection handler
+        function selectPlan(plan) {
+            if (plan === 'basic') {
+                // Redirect to dashboard for free plan
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            // Update the selected plan in payment form
+            const planName = plan === 'pro' ? 'Pro' : 'Premium';
+            const planPrice = plan === 'pro' ? 'Rp14.900' : 'Rp29.900';
+            
+            document.getElementById('selected-plan').textContent = planName;
+            document.getElementById('plan-price').textContent = planPrice;
+            document.getElementById('success-plan').textContent = planName;
+            document.getElementById('ewallet-amount').textContent = planPrice;
+            
+            // Show payment form
+            document.getElementById('plan-selection').style.display = 'none';
+            document.getElementById('payment-form').classList.add('active');
+            
+            // Scroll to payment form
+            document.getElementById('payment-form').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Back to plans handler
+        function goBackToPlans() {
+            document.getElementById('plan-selection').style.display = 'grid';
+            document.getElementById('payment-form').classList.remove('active');
+            document.getElementById('payment-success').classList.remove('active');
+            
+            // Reset payment form
+            resetPaymentForm();
+            
+            // Scroll to plans
+            document.getElementById('plan-selection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Reset payment form
+        function resetPaymentForm() {
+            // Reset credit card form
+            document.getElementById('card-number').value = '';
+            document.getElementById('expiry-date').value = '';
+            document.getElementById('cvv').value = '';
+            document.getElementById('name').value = '';
+            
+            // Reset bank transfer
+            document.getElementById('payment-proof').value = '';
+            document.getElementById('file-preview').classList.remove('show');
+            
+            // Reset e-wallet
+            document.querySelectorAll('.e-wallet-btn').forEach(btn => {
+                btn.classList.remove('border-yellow-500');
+            });
+            document.getElementById('ewallet-details').classList.add('hidden');
+            
+            // Reset to credit card tab
+            showPaymentTab('credit-card');
+        }
+
+        // Show selected payment tab
+        function showPaymentTab(method) {
+            // Update tabs
+            document.querySelectorAll('.payment-tab').forEach(tab => {
+                tab.classList.remove('active', 'text-yellow-500', 'border-b-2', 'border-yellow-500');
+                tab.classList.add('text-gray-400');
+            });
+            
+            event.target.classList.add('active', 'text-yellow-500', 'border-b-2', 'border-yellow-500');
+            event.target.classList.remove('text-gray-400');
+        
+            // Update forms
+            document.querySelectorAll('.payment-method').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById(`${method}-form`).classList.add('active');
+        }
+
+        // Select e-wallet provider
+        function selectEWallet(provider) {
+            document.querySelectorAll('.e-wallet-btn').forEach(btn => {
+                btn.classList.remove('border-yellow-500');
+            });
+            
+            event.target.classList.add('border-yellow-500');
+            document.getElementById('ewallet-details').classList.remove('hidden');
+            
+            showToast(`Selected ${provider.toUpperCase()} as payment method`, 'success');
+        }
+
+        // Handle payment proof upload
+        document.getElementById('payment-proof').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const filePreview = document.getElementById('file-preview');
+            const filePreviewImg = document.getElementById('file-preview-img');
+            const filePreviewName = document.getElementById('file-preview-name');
+            const filePreviewSize = document.getElementById('file-preview-size');
+            
+            // Display file info
+            filePreviewName.textContent = file.name;
+            filePreviewSize.textContent = formatFileSize(file.size);
+            
+            // Display preview if image
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    filePreviewImg.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Show generic icon for non-image files
+                filePreviewImg.src = 'https://cdn-icons-png.flaticon.com/512/136/136521.png';
+            }
+            
+            filePreview.classList.add('show');
+        });
+
+        // Remove payment proof
+        function removePaymentProof() {
+            document.getElementById('payment-proof').value = '';
+            document.getElementById('file-preview').classList.remove('show');
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Validate credit card
+        function validateCreditCard() {
+            const cardNumber = document.getElementById('card-number').value.trim();
+            const expiryDate = document.getElementById('expiry-date').value.trim();
+            const cvv = document.getElementById('cvv').value.trim();
+            const name = document.getElementById('name').value.trim();
+            
+            if (!cardNumber || !expiryDate || !cvv || !name) {
+                showToast('Please fill all credit card details', 'error');
+                return false;
+            }
+            
+            // Simple card number validation (16 digits)
+            if (!/^\d{16}$/.test(cardNumber.replace(/\s/g, ''))) {
+                showToast('Please enter a valid 16-digit card number', 'error');
+                return false;
+            }
+            
+            // Simple expiry date validation (MM/YY)
+            if (!/^(0[1-9]|1[0-2])\/?([0-9]{2})$/.test(expiryDate)) {
+                showToast('Please enter a valid expiry date (MM/YY)', 'error');
+                return false;
+            }
+            
+            // Simple CVV validation (3 or 4 digits)
+            if (!/^\d{3,4}$/.test(cvv)) {
+                showToast('Please enter a valid CVV (3 or 4 digits)', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Validate bank transfer
+        function validateBankTransfer() {
+            if (!document.getElementById('payment-proof').files.length) {
+                showToast('Please upload your payment proof', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        // Validate e-wallet
+        function validateEWallet() {
+            if (!document.querySelector('.e-wallet-btn.border-yellow-500')) {
+                showToast('Please select an e-wallet provider', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        // Process payment based on selected method
+        async function processPayment() {
+            const paymentButton = document.getElementById('payment-button');
+            const originalButtonText = paymentButton.innerHTML;
+            
+            try {
+                // Show loading state
+                paymentButton.disabled = true;
+                paymentButton.innerHTML = `<span class="spinner"></span>Processing Payment...`;
+                
+                const activeMethod = document.querySelector('.payment-tab.active').getAttribute('onclick').replace("showPaymentTab('", "").replace("')", "");
+                
+                let isValid = false;
+                
+                switch (activeMethod) {
+                    case 'credit-card':
+                        isValid = validateCreditCard();
+                        break;
+                    case 'bank-transfer':
+                        isValid = validateBankTransfer();
+                        break;
+                    case 'e-wallet':
+                        isValid = validateEWallet();
+                        break;
+                }
+                
+                if (!isValid) {
+                    paymentButton.disabled = false;
+                    paymentButton.innerHTML = originalButtonText;
+                    return;
+                }
+                
+                // Simulate payment processing delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // If validation passes, show success
+                document.getElementById('payment-form').classList.remove('active');
+                document.getElementById('payment-success').classList.add('active');
+                document.getElementById('payment-success').scrollIntoView({ behavior: 'smooth' });
+                
+                showToast('Payment processed successfully!', 'success');
+            } catch (error) {
+                showToast('Payment failed. Please try again.', 'error');
+                console.error('Payment error:', error);
+            } finally {
+                paymentButton.disabled = false;
+                paymentButton.innerHTML = originalButtonText;
+            }
+        }
+
+        // Initialize file upload preview
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add drag and drop for payment proof
+            const dropArea = document.querySelector('#bank-transfer-form .border-dashed');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+                        ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('border-yellow-500', 'bg-gray-800');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('border-yellow-500', 'bg-gray-800');
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                document.getElementById('payment-proof').files = files;
+                
+                // Trigger the change event
+                const event = new Event('change');
+                document.getElementById('payment-proof').dispatchEvent(event);
+            }
+            
+            // Format card number input
+            document.getElementById('card-number').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                let formatted = '';
+                
+                for (let i = 0; i < value.length; i++) {
+                    if (i > 0 && i % 4 === 0) {
+                        formatted += ' ';
+                    }
+                    formatted += value[i];
+                }
+                
+                e.target.value = formatted;
+            });
+            
+            // Format expiry date input
+            document.getElementById('expiry-date').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                
+                if (value.length > 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                
+                e.target.value = value;
+            });
+            
+            // Restrict CVV to numbers only
+            document.getElementById('cvv').addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/\D/g, '');
+            });
+        });
+    </script>
+</body>
+</html>

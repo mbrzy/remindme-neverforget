@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RemindMe - Smart Task Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #F59E0B;
+            --primary-dark: #D97706;
+            --dark: #1F2937;
+            --darker: #111827;
+            --light: #E5E7EB;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            color: var(--light);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.95));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            transition: all 0.3s ease;
+            border: none;
+            color: #000;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(31, 41, 55, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--light);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+        
+        .navbar {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
+        }
+        
+        .feature-icon {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(100%);
+        }
+        
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+        
+        .hamburger div {
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger.active .line1 {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .hamburger.active .line2 {
+            opacity: 0;
+        }
+        
+        .hamburger.active .line3 {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar fixed w-full top-0 z-50 px-6 py-4" data-aos="fade-down">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="https://i.imghippo.com/files/rAm4628aH.png" alt="RemindMe Logo" class="h-8">
+                <span class="text-xl font-bold text-yellow-500">RemindMe</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#home" class="nav-link text-gray-300 hover:text-yellow-500 transition-colors">Home</a>
+                <a href="#features" class="nav-link text-gray-300 hover:text-yellow-500 transition-colors">Features</a>
+                <a href="dashboard.html" class="nav-link text-gray-300 hover:text-yellow-500 transition-colors">Dashboard</a>
+                <a href="pricing.html" class="nav-link text-gray-300 hover:text-yellow-500 transition-colors">Pricing</a>
+                <a href="login.html" class="btn-secondary px-4 py-2 rounded-lg">Login</a>
+                <a href="signup.html" class="btn-primary px-4 py-2 rounded-lg">Sign Up</a>
+            </div>
+            <button id="hamburger" class="md:hidden text-yellow-500 focus:outline-none">
+                <div class="w-6 space-y-1">
+                    <div class="line1 h-0.5 bg-yellow-500"></div>
+                    <div class="line2 h-0.5 bg-yellow-500"></div>
+                    <div class="line3 h-0.5 bg-yellow-500"></div>
+                </div>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="mobile-menu md:hidden bg-gray-800 p-6 absolute top-16 left-0 w-full flex flex-col space-y-4 border-t border-gray-700">
+            <a href="#home" class="text-gray-300 hover:text-yellow-500 transition-colors py-2 flex items-center gap-3">
+                <i class="fas fa-home w-5"></i> Home
+            </a>
+            <a href="#features" class="text-gray-300 hover:text-yellow-500 transition-colors py-2 flex items-center gap-3">
+                <i class="fas fa-tasks w-5"></i> Features
+            </a>
+            <a href="dashboard.html" class="text-gray-300 hover:text-yellow-500 transition-colors py-2 flex items-center gap-3">
+                <i class="fas fa-tachometer-alt w-5"></i> Dashboard
+            </a>
+            <a href="pricing.html" class="text-gray-300 hover:text-yellow-500 transition-colors py-2 flex items-center gap-3">
+                <i class="fas fa-tag w-5"></i> Pricing
+            </a>
+            <a href="login.html" class="text-gray-300 hover:text-yellow-500 transition-colors py-2 flex items-center gap-3">
+                <i class="fas fa-sign-in-alt w-5"></i> Login
+            </a>
+            <a href="signup.html" class="text-gray-300 hover:text-yellow-500 transition-colors py-2 flex items-center gap-3">
+                <i class="fas fa-user-plus w-5"></i> Sign Up
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="pt-24 pb-16 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="hero-gradient rounded-3xl p-16 mb-8">
+                    <h1 class="text-5xl md:text-7xl font-bold mb-6">
+                        Never <span class="text-yellow-500">forget</span><br>
+                        anything again
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-400 mb-8 max-w-3xl mx-auto">
+                        RemindMe is your intelligent task manager that helps you stay organized, productive, and on top of everything that matters.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="dashboard.html" class="btn-primary px-8 py-4 rounded-xl text-lg font-semibold">
+                            Get Started Free
+                        </a>
+                        <a href="dashboard.html" class="btn-secondary px-8 py-4 rounded-xl text-lg font-semibold">
+                            View Dashboard
+                        </a>
+                    </div>
+                </div>
+                <div class="floating-animation">
+                    <img src="https://i.imghippo.com/files/rAm4628aH.png" alt="RemindMe App Interface" class="h-32 mx-auto opacity-80">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-16 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">Powerful Features</h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    Everything you need to manage your tasks, reminders, and goals in one beautiful interface.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="glass-card p-8 rounded-2xl">
+                    <div class="feature-icon text-4xl mb-4">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Smart Reminders</h3>
+                    <p class="text-gray-400">AI-powered reminders that learn your habits and suggest optimal timing.</p>
+                </div>
+                <div class="glass-card p-8 rounded-2xl">
+                    <div class="feature-icon text-4xl mb-4">
+                        <i class="fas fa-sync"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Cross-Platform Sync</h3>
+                    <p class="text-gray-400">Access your tasks anywhere, anytime with seamless synchronization.</p>
+                </div>
+                <div class="glass-card p-8 rounded-2xl">
+                    <div class="feature-icon text-4xl mb-4">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">Team Collaboration</h3>
+                    <p class="text-gray-400">Share tasks and collaborate with your team members effortlessly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Preview Section -->
+    <section id="pricing-preview" class="py-16 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 text-yellow-500">
+                <i class="fas fa-crown"></i>
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">Upgrade Plans</h2>
+                <p class="text-xl text-gray-400">Start free, upgrade when you need more power.</p>
+            </div>
+            <div id="plan-selection" class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <div class="glass-card p-8 rounded-2xl">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-semibold mb-2">Basic</h3>
+                        <p class="text-gray-400 mb-4">For students who need basic organization</p>
+                        <div class="flex justify-center items-baseline">
+                            <span class="text-4xl font-bold">Free</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Up to 10 tasks</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Basic reminders</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Mobile app</li>
+                        <li class="flex items-center gap-3 text-gray-500"><i class="fas fa-times text-red-500"></i>Advanced analytics</li>
+                    </ul>
+                    <a href="dashboard.html"><button  class="btn-secondary w-full py-3 rounded-lg">Get Started</button></a>
+                </div>
+                <div class="glass-card p-8 rounded-2xl border-yellow-500 border-2 relative">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black px-4 py-1 rounded-full text-sm font-semibold">
+                        Most Popular
+                    </div>
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-semibold mb-2">Pro</h3>
+                        <p class="text-gray-400 mb-4">For serious students who need more</p>
+                        <div class="flex justify-center items-baseline">
+                            <span class="text-4xl font-bold">Rp. 14.900</span>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Unlimited tasks</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Smart reminders</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Cross-platform sync</li>
+                        <li class="flex items-center gap-3 text-gray-500"><i class="fas fa-times text-red-500"></i>Team collaboration</li>
+                    </ul>
+                    <a href="pricing.html"><button onclick="selectPlan('pro')" class="btn-primary w-full py-3 rounded-lg">Choose Pro</button></a>
+                </div>
+                <div class="glass-card p-8 rounded-2xl">
+                     <div class="text-center mb-6">
+                        <h3 class="text-xl font-semibold mb-2">Premium</h3>
+                        <p class="text-gray-400 mb-4">For power users who want everything</p>
+                        <div class="flex justify-center items-baseline">
+                            <span class="text-4xl font-bold">Rp. 29.900</span>
+                        </div>
+                     </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Everything in Pro</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Team collaboration</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Advanced analytics</li>
+                        <li class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i>Priority support</li>
+                    </ul>
+                    <a href="pricing.html"><button onclick="selectPlan('premium')" class="btn-primary w-full py-3 rounded-lg">Choose Premium</button></a>
+                </div>
+            </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-12 px-6 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <img src="https://i.imghippo.com/files/rAm4628aH.png" alt="RemindMe Logo" class="h-8">
+                        <span class="text-xl font-bold text-yellow-500">RemindMe</span>
+                    </div>
+                    <p class="text-gray-400">The smart task manager that helps you stay organized and productive.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Product</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#features" class="text-gray-400 hover:text-yellow-500 transition-colors">Features</a></li>
+                        <li><a href="pricing.html" class="text-gray-400 hover:text-yellow-500 transition-colors">Pricing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">Download</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors"><i class="fab fa-twitter text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors"><i class="fab fa-facebook text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors"><i class="fab fa-instagram text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors"><i class="fab fa-linkedin text-xl"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0">© 2023 RemindMe. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-yellow-500 transition-colors">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        // Initialize AOS animations
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+
+            // Mobile menu toggle
+            const hamburger = document.getElementById('hamburger');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (hamburger && mobileMenu) {
+                hamburger.addEventListener('click', () => {
+                    hamburger.classList.toggle('active');
+                    mobileMenu.classList.toggle('active');
+                });
+
+                // Close mobile menu when clicking a link
+                const mobileLinks = document.querySelectorAll('#mobile-menu a');
+                mobileLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        hamburger.classList.remove('active');
+                        mobileMenu.classList.remove('active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
